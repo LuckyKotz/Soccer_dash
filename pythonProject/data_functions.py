@@ -48,7 +48,7 @@ def last_matches(data_frame, count_matches):
 
 
 def calculate_means_and_coefficients(table_mean_coeff):
-    prefixes = ["goals", "YC", "corners"]
+    prefixes = ["goals", "YC", "corners", "fh"]
 
     for prefix in prefixes:
         columns = [f"{prefix}_home", f"{prefix}_away"]
@@ -94,7 +94,6 @@ def result(row):
 # Последние матчи по срезу клубов
 def get_team_(team, df, df_name):
     home_df = pd.DataFrame()
-
     home_df[['opponent',
              'it1', 'it2', 'Date',
              df_name + '_it1',
@@ -107,7 +106,8 @@ def get_team_(team, df, df_name):
              df_name + '_it2_opponent',
              df_name + '_it1_opponent_coeff',
              df_name + '_it2_opponent_coeff'
-             ]] = df[df['Team1'] == team][['Team2', 'Team1_' + df_name, 'Team2_' + df_name, 'Date',
+             ]] = df[df['Team1'] == team][['Team2',
+                                           'Team1_' + df_name, 'Team2_' + df_name, 'Date',
                                            df_name + '_mean_Team1',
                                            df_name + '_mean_opponent_Team1',
                                            df_name + '_coeff_mean_Team1',
@@ -134,7 +134,8 @@ def get_team_(team, df, df_name):
              df_name + '_it2_opponent',
              df_name + '_it1_opponent_coeff',
              df_name + '_it2_opponent_coeff'
-             ]] = df[df['Team2'] == team][['Team1', 'Team2_' + df_name, 'Team1_' + df_name, 'Date',
+             ]] = df[df['Team2'] == team][['Team1',
+                                           'Team2_' + df_name, 'Team1_' + df_name, 'Date',
                                            df_name + '_mean_Team2',
                                            df_name + '_mean_opponent_Team2',
                                            df_name + '_coeff_mean_Team2',
@@ -149,8 +150,7 @@ def get_team_(team, df, df_name):
     away_df['play_'] = 'Away'
 
     teams = pd.concat([home_df, away_df], ignore_index=True)
-    # teams.index = pd.to_datetime(teams.index, format='%d.%m.%Y')
-    teams = teams.sort_index(ascending=True)
+    teams['Date'] = pd.to_datetime(teams['Date'], format='%d.%m.%Y')
     teams['diff_' + df_name] = teams['it1'] - teams['it2']
     teams['result_' + df_name] = teams['diff_' + df_name].apply(result)
 
@@ -161,14 +161,14 @@ def get_team_(team, df, df_name):
     names = ['Очень слабые', 'Слабые', 'Средние', 'Сильные', 'Очень сильные']
     names_it2 = ['Очень сильные', 'Сильные', 'Средние', 'Слабые', 'Очень слабые']
 
-    teams['it1_opponent_cattegory_' + df_name] = pd.cut(teams[df_name + '_it1_opponent_coeff'],
+    teams['it1_opponent_category_' + df_name] = pd.cut(teams[df_name + '_it1_opponent_coeff'],
                                                         bins, labels=names)
-    teams['it2_opponent_cattegory_' + df_name] = pd.cut(teams[df_name + '_it2_opponent_coeff'],
+    teams['it2_opponent_category_' + df_name] = pd.cut(teams[df_name + '_it2_opponent_coeff'],
                                                         bins_it2, labels=names_it2)
 
-    teams['it1_cattegory_' + df_name] = pd.cut(teams[df_name + '_it1_coeff'],
+    teams['it1_category_' + df_name] = pd.cut(teams[df_name + '_it1_coeff'],
                                                bins, labels=names)
-    teams['it2_cattegory_' + df_name] = pd.cut(teams[df_name + '_it2_coeff'],
+    teams['it2_category_' + df_name] = pd.cut(teams[df_name + '_it2_coeff'],
                                                bins_it2, labels=names_it2)
 
     options = []
@@ -179,17 +179,15 @@ def get_team_(team, df, df_name):
     for k in names:
         options_opponents.append({'label': k, 'value': k})
 
-    return teams
+    return teams.sort_values('Date')
 
 
 # приджойнить голы к dataframe с переменование +goals,
 def merge_goals(indicator_market, Df_goals):
     Df_goals = Df_goals.rename(columns={'it1': 'it1_goals',
                                         'it2': 'it2_goals',
-                                        'it1_coeff': 'it1_coeff_goals',
-                                        'it2_coeff': 'it2_coeff_goals',
-                                        'it1_coeff_oppo': 'it1_coeff_oppo_goals',
-                                        'it2_coeff_oppo': 'it2_coeff_oppo_goals'},
-                               )  # Переменовали колонки для мерджа
-    indicator_market = pd.merge(indicator_market, Df_goals, on=['opponent', 'play_'], how='inner')
+                                        },
+                               )# Переменовали колонки для мерджа
+    Df_goals.drop(columns='Date', inplace=True)
+    indicator_market = pd.merge(indicator_market, Df_goals, on=['opponent', 'play_'], how='left')
     return indicator_market

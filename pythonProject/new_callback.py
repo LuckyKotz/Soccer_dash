@@ -223,174 +223,74 @@ def update_data_page(n_clicks, diff_goals_table_page):
                      (score["Team1_goals"] - score["Team2_goals"] <= diff_goals_table_page[1])]
     return score_df.to_dict('records')
 
-'''СТРАНИЦА ГОЛЫ 1 ГРАФИК'''
+'''СТРАНИЦА 1'''
 @app.callback(
-    Output(component_id="graph-goals-id1", component_property="figure"),
-    [Input(component_id="range-diff-goals", component_property="value"),
-     Input(component_id="Team1-VS-similar-def-Team2", component_property="value")]
-)
-def update_graph1(diff_goals, range_category):
-    team1_filtr = team1_goals[(team1_goals["diff_goals"] >= diff_goals[0]) &
-                              (team1_goals["diff_goals"] <= diff_goals[1]) &
-                              (team1_goals["it2_opponent_category_goals"]).isin(range_category)]
-
-    fig = plot_figure(team1_filtr, 'goals', team[0], team[1])[0]
-    return fig
-
-'''СТРАНИЦА ГОЛЫ. 2 ГРАФИК'''
-@app.callback(
+    [Output(component_id="graph-goals-id1", component_property="figure"),
     Output(component_id="graph-goals-id2", component_property="figure"),
-    [Input(component_id="range-diff-goals", component_property="value"),
-     Input(component_id="Team2-VS-similar-att-Team1", component_property="value")]
-)
-def update_graph2(range_diff_goals2, range_category2):
-    team2_filtr = team2_goals[(team2_goals["diff_goals"] >= range_diff_goals2[0]) &
-                              (team2_goals["diff_goals"] <= range_diff_goals2[1]) &
-                              (team2_goals["it1_opponent_category_goals"]).isin(range_category2)
-                              ]
-    fig = plot_figure(team2_filtr, 'goals', team[0], team[1])[1]
-    return fig
-
-'''СТРАНИЦА ГОЛЫ. 3 ГРАФИК'''
-@app.callback(
     Output(component_id="graph-goals-id3", component_property="figure"),
-    [Input(component_id="range-diff-goals", component_property="value"),
-     Input(component_id="Team2-VS-similar-def-Team1", component_property="value")]
-)
-def update_graph3(range_diff_goals3, range_category3):
-    team2_filtr = team2_goals[(team2_goals["diff_goals"] >= range_diff_goals3[0]) &
-                              (team2_goals["diff_goals"] <= range_diff_goals3[1]) &
-                              (team2_goals["it2_opponent_category_goals"]).isin(range_category3)
-                              ]
-    fig = plot_figure(team2_filtr, 'goals', team[1], team[0])[0]
-    return fig
-
-'''СТРАНИЦА ГОЛЫ. 4 ГРАФИК'''
-@app.callback(
-    Output(component_id="graph-goals-id4", component_property="figure"),
-    [Input(component_id="range-diff-goals", component_property="value"),
+    Output(component_id="graph-goals-id4", component_property="figure")],
+    [Input(component_id="Team1-VS-similar-def-Team2", component_property="value"),
+     Input(component_id="Team2-VS-similar-att-Team1", component_property="value"),
+     Input(component_id="Team2-VS-similar-def-Team1", component_property="value"),
      Input(component_id="Team1-VS-similar-att-Team2", component_property="value")]
 )
-def update_graph4(range_diff_goals4, range_category4):
-    team1_filtr = team1_goals[(team1_goals["diff_goals"] >= range_diff_goals4[0]) &
-                              (team1_goals["diff_goals"] <= range_diff_goals4[1]) &
-                              (team1_goals["it1_opponent_category_goals"]).isin(range_category4)
-                              ]
-    fig = plot_figure(team1_filtr, 'goals', team[1], team[0])[1]
-    return fig
+def update_graph1(range_category1, range_category2, range_category3, range_category4):
+    team1_filtr1 = team1_goals[(team1_goals["it2_opponent_category_goals"]).isin(range_category1)]
+    team2_filtr1 = team2_goals[(team2_goals["it1_opponent_category_goals"]).isin(range_category2)]
+    team2_filtr2 = team2_goals[(team2_goals["it2_opponent_category_goals"]).isin(range_category3)]
+    team1_filtr2 = team1_goals[(team1_goals["it1_opponent_category_goals"]).isin(range_category4)]
+    fig = plot_figure(team1_filtr1, 'goals', team[0], team[1])[0]
+    fig2 = plot_figure(team2_filtr1, 'goals', team[0], team[1])[1]
+    fig3 = plot_figure(team2_filtr2, 'goals', team[1], team[0])[0]
+    fig4 = plot_figure(team1_filtr2, 'goals', team[1], team[0])[1]
 
+    return fig, fig2, fig3, fig4
 
+'''СТРАНИЦА 2'''
 @app.callback(
-    Output(component_id="graph-corners-id1", component_property="figure"),
-    [Input(component_id="range-diff-goals", component_property="value"),
-     Input(component_id="corners-Team1-VS-similar-def-Team2", component_property="value")]
-)
-def update_graph_corners1(range_diff_goals1, range_category):
-    team1_filtr = team1_corners[(team1_corners["diff_goals"] >= range_diff_goals1[0]) &
-                                (team1_corners["diff_goals"] <= range_diff_goals1[1]) &
-                                (team1_corners["it2_opponent_category_corners"]).isin(range_category)
-                                ]
-    fig = plot_figure(team1_filtr, 'corners', team[0], team[1])[0]
-    return fig
-
-
-@app.callback(
-    Output(component_id="graph-corners-id2", component_property="figure"),
-    [Input(component_id="range-diff-goals", component_property="value"),
-     Input(component_id="corners-Team2-VS-similar-att-Team1", component_property="value")]
-)
-def update_graph_corners2(range_diff_goals2, range_category2):
-    team2_filtr = team2_corners[(team2_corners["diff_goals"] >= range_diff_goals2[0]) &
-                                (team2_corners["diff_goals"] <= range_diff_goals2[1]) &
-                                (team2_corners["it1_opponent_category_corners"]).isin(range_category2)
-                                ]
-    fig = plot_figure(team2_filtr, 'corners', team[0], team[1])[1]
-    return fig
-
-
-@app.callback(
-    Output(component_id="graph-corners-id3", component_property="figure"),
-    [Input(component_id="range-diff-goals", component_property="value"),
-     Input(component_id="corners-Team2-VS-similar-def-Team1", component_property="value")]
-)
-def update_graph_corners3(range_diff_goals3, range_category3):
-    team2_filtr = team2_corners[(team2_corners["diff_goals"] >= range_diff_goals3[0]) &
-                                (team2_corners["diff_goals"] <= range_diff_goals3[1]) &
-                                (team2_corners["it2_opponent_category_corners"]).isin(range_category3)
-                                ]
-    fig = plot_figure(team2_filtr, 'corners', team[1], team[0])[0]
-    return fig
-
-
-@app.callback(
-    Output(component_id="graph-corners-id4", component_property="figure"),
-    [Input(component_id="range-diff-goals", component_property="value"),
-     Input(component_id="corners-Team1-VS-similar-att-Team2", component_property="value")]
-)
-def update_graph_corners4(range_diff_goals4, range_category4):
-    team1_filtr = team1_corners[(team1_corners["diff_goals"] >= range_diff_goals4[0]) &
-                                (team1_corners["diff_goals"] <= range_diff_goals4[1]) &
-                                (team1_corners["it1_opponent_category_corners"]).isin(range_category4)
-                                ]
-    fig = plot_figure(team1_filtr, 'corners', team[1], team[0])[1]
-    return fig
-
-
-@app.callback(
-    Output(component_id="graph-fh-id1", component_property="figure"),
-    [Input(component_id="range-diff-goals", component_property="value"),
-     Input(component_id="fh-Team1-VS-similar-def-Team2", component_property="value")]
-)
-def update_graph_fh1(range_diff_goals2, range_category):
-    team1_filtr = team1_fh[(team1_fh["diff_goals"] >= range_diff_goals2[0]) &
-                           (team1_fh["diff_goals"] <= range_diff_goals2[1]) &
-                           (team1_fh["it2_opponent_category_fh"]).isin(range_category)
-                           ]
-    fig = plot_figure(team1_filtr, 'fh', team[0], team[1])[0]
-    return fig
-
-
-@app.callback(
+    [Output(component_id="graph-fh-id1", component_property="figure"),
     Output(component_id="graph-fh-id2", component_property="figure"),
-    [Input(component_id="range-diff-goals", component_property="value"),
-     Input(component_id="fh-Team2-VS-similar-att-Team1", component_property="value")]
-)
-def update_graph_fh2(range_diff_goals2, range_category2):
-    team2_filtr = team2_fh[(team2_fh["diff_goals"] >= range_diff_goals2[0]) &
-                           (team2_fh["diff_goals"] <= range_diff_goals2[1]) &
-                           (team2_fh["it1_opponent_category_fh"]).isin(range_category2)
-                           ]
-    fig = plot_figure(team2_filtr, 'fh', team[0], team[1])[1]
-    return fig
-
-
-@app.callback(
     Output(component_id="graph-fh-id3", component_property="figure"),
-    [Input(component_id="range-diff-goals", component_property="value"),
-     Input(component_id="fh-Team2-VS-similar-def-Team1", component_property="value")]
-)
-def update_graph_fh3(range_diff_goals3, range_category3):
-    team2_filtr = team2_fh[(team2_fh["diff_goals"] >= range_diff_goals3[0]) &
-                           (team2_fh["diff_goals"] <= range_diff_goals3[1]) &
-                           (team2_fh["it2_opponent_category_fh"]).isin(range_category3)
-                           ]
-    fig = plot_figure(team2_filtr, 'fh', team[1], team[0])[0]
-    return fig
-
-
-@app.callback(
-    Output(component_id="graph-fh-id4", component_property="figure"),
-    [Input(component_id="range-diff-goals", component_property="value"),
+    Output(component_id="graph-fh-id4", component_property="figure")],
+    [Input(component_id="fh-Team1-VS-similar-def-Team2", component_property="value"),
+     Input(component_id="fh-Team2-VS-similar-att-Team1", component_property="value"),
+     Input(component_id="fh-Team2-VS-similar-def-Team1", component_property="value"),
      Input(component_id="fh-Team1-VS-similar-att-Team2", component_property="value")]
 )
-def update_graph_fh4(range_diff_goals4, range_category4):
-    team1_filtr = team1_fh[(team1_fh["diff_goals"] >= range_diff_goals4[0]) &
-                           (team1_fh["diff_goals"] <= range_diff_goals4[1]) &
-                           (team1_fh["it1_opponent_category_fh"]).isin(range_category4)
-                           ]
-    fig = plot_figure(team1_filtr, 'fh', team[1], team[0])[1]
-    return fig
+def update_graph2(range_category1, range_category2, range_category3, range_category4):
+    team1_filtr1 = team1_fh[(team1_fh["it2_opponent_category_fh"]).isin(range_category1)]
+    team2_filtr1 = team2_fh[(team2_fh["it1_opponent_category_fh"]).isin(range_category2)]
+    team2_filtr2 = team2_fh[(team2_fh["it2_opponent_category_fh"]).isin(range_category3)]
+    team1_filtr2 = team1_fh[(team1_fh["it1_opponent_category_fh"]).isin(range_category4)]
+    fig = plot_figure(team1_filtr1, 'fh', team[0], team[1])[0]
+    fig2 = plot_figure(team2_filtr1, 'fh', team[0], team[1])[1]
+    fig3 = plot_figure(team2_filtr2, 'fh', team[1], team[0])[0]
+    fig4 = plot_figure(team1_filtr2, 'fh', team[1], team[0])[1]
 
+    return fig, fig2, fig3, fig4
+
+'''СТРАНИЦА 3'''
+@app.callback(
+    [Output(component_id="graph-corners-id1", component_property="figure"),
+    Output(component_id="graph-corners-id2", component_property="figure"),
+    Output(component_id="graph-corners-id3", component_property="figure"),
+    Output(component_id="graph-corners-id4", component_property="figure")],
+    [Input(component_id="corners-Team1-VS-similar-def-Team2", component_property="value"),
+     Input(component_id="corners-Team2-VS-similar-att-Team1", component_property="value"),
+     Input(component_id="corners-Team2-VS-similar-def-Team1", component_property="value"),
+     Input(component_id="corners-Team1-VS-similar-att-Team2", component_property="value")]
+)
+def update_graph2(range_category1, range_category2, range_category3, range_category4):
+    team1_filtr1 = team1_corners[(team1_corners["it2_opponent_category_corners"]).isin(range_category1)]
+    team2_filtr1 = team2_corners[(team2_corners["it1_opponent_category_corners"]).isin(range_category2)]
+    team2_filtr2 = team2_corners[(team2_corners["it2_opponent_category_corners"]).isin(range_category3)]
+    team1_filtr2 = team1_corners[(team1_corners["it1_opponent_category_corners"]).isin(range_category4)]
+    fig = plot_figure(team1_filtr1, 'corners', team[0], team[1])[0]
+    fig2 = plot_figure(team2_filtr1, 'corners', team[0], team[1])[1]
+    fig3 = plot_figure(team2_filtr2, 'corners', team[1], team[0])[0]
+    fig4 = plot_figure(team1_filtr2, 'corners', team[1], team[0])[1]
+
+    return fig, fig2, fig3, fig4
 
 if __name__ == '__main__':
     app.run_server(debug=True)
